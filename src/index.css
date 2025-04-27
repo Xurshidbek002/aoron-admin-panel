@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+html,
+body {
+  overflow-x: hidden;
+  background-color: rgb(45, 0, 60);
+  scroll-behavior: smooth !important;
+}
+
+/* Scrollbar-ni butunlay yo'q qilish */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE va Edge */
+  scrollbar-width: none;    /* Firefox */
+}
+
+/* Chrome, Safari va Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
