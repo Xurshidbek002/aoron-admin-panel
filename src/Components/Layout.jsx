@@ -53,16 +53,16 @@ function Layout() {
       <div className="">
         <div className="grid grid-cols-12 h-screen overflow-y-hidden">
           <div className="col-span-2">
-            <div className="w-full h-full relative bg-[#00036371] pt-7 px-5 flex flex-col gap-3 items-center">
-              <img src={img} alt="" className="w-[65%] mb-3" />
+            <div className="w-full h-full bg-[#06082f] pt-7 px-5 flex flex-col gap-1 items-center">
+              <img src={img} alt="" className="w-30 h-25 mb-3" />
               {base.map((item, index) => (
                 <NavLink
                   key={index}
                   to={item?.path}
                   className={({ isActive }) =>
                     isActive
-                      ? "bg-[#1c21af] text-[20px] text-white  text-center rounded-md font-bold w-full"
-                      : "text-[20px] duration-100 text-white hover:bg-[#1c21af2b]  text-center rounded-md font-bold w-full"
+                      ? "bg-[#1c21af] text-[17px] py-1 text-white  text-center rounded-md font-medium w-full"
+                      : "text-[17px] text-white py-1 hover:bg-[#ffffff08] text-center rounded-md font-medium w-full"
                   }
                 >
                   {item?.name}
@@ -77,7 +77,7 @@ function Layout() {
             </div>
           </div>
           <div className="col-span-10">
-            <div className="w-full h-full bg-[#100022] p-2">
+            <div className="w-full h-full bg-[#100022]">
               <Outlet />
             </div>
           </div>

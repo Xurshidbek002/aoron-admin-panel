@@ -2,14 +2,17 @@ import React, { useState } from "react";
 import { toast } from "react-toastify";
 import API from "../api/Axios";
 import { useNavigate } from "react-router-dom";
+import { FaSpinner } from "react-icons/fa";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const login = (e) => {
     e.preventDefault();
+    setLoading(true);
 
     API.post("/auth/login", { login: email, password })
       .then((res) => {
@@ -17,17 +20,22 @@ function Login() {
         localStorage.setItem("token", token);
         toast.success(res.data?.data?.message);
         navigate("/");
+        setLoading(false);
       })
       .catch((err) => {
         console.log(err);
         toast.error(err.response?.data?.message?.message);
+        setLoading(false);
       });
   };
 
   return (
     <div>
       <div className="w-full h-screen flex justify-center items-center">
-        <div data-aos="zoom-in" className="bg-white h-auto rounded-2xl px-7 py-5 overflow-hidden z-10">
+        <div
+          data-aos="zoom-in"
+          className="bg-white h-auto rounded-2xl px-7 py-5 overflow-hidden z-10"
+        >
           <h2 className="text-center font-bold text-2xl pb-5 text-purple-900">
             Login Page
           </h2>
@@ -66,8 +74,17 @@ function Login() {
               >
                 Forget password
               </button>
-              <button className="bg-purple-600 font-extrabold px-5 py-1 rounded-md text-white cursor-pointer duration-500 hover:scale-105 hover:bg-purple-800">
-                Login
+              <button
+                disabled={loading}
+                className="bg-purple-600 font-extrabold px-5 py-1 rounded-md text-white cursor-pointer duration-500 hover:scale-105 hover:bg-purple-800"
+              >
+                {loading ? (
+                  <span className="flex items-center gap-1">
+                    Login <FaSpinner className="animate-spin" />
+                  </span>
+                ) : (
+                  <span className="">Login</span>
+                )}
               </button>
             </div>
           </form>

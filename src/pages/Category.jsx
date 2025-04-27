@@ -4,14 +4,15 @@ import { FaSpinner } from "react-icons/fa";
 import Modal from "../Components/Modal";
 import { IoClose } from "react-icons/io5";
 import { toast } from "react-toastify";
+import { MdImageNotSupported } from "react-icons/md";
+import { thead } from "motion/react-client";
 
 function Category() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalModal] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [categoryIdToDelete, setCategoryIdToDelete] = useState(null);  // Store the category id to delete
-
+  const [categoryIdToDelete, setCategoryIdToDelete] = useState(null);
   const [formData, setFormData] = useState({
     name_en: "",
     name_de: "",
@@ -19,10 +20,7 @@ function Category() {
   });
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e) => {
@@ -59,22 +57,22 @@ function Category() {
   };
 
   const handleDelete = (categoryId) => {
-    setCategoryIdToDelete(categoryId);  // Store the category id to delete
-    setIsDeleteModalOpen(true);         // Open the delete confirmation modal
+    setCategoryIdToDelete(categoryId);
+    setIsDeleteModalOpen(true);
   };
 
   const confirmDelete = () => {
     if (categoryIdToDelete) {
       API.delete(`/category/${categoryIdToDelete}`)
         .then((res) => {
-          toast.success("Category deleted successfully");
+          toast.success(res.statusText);
           getCategory();
-          setIsDeleteModalOpen(false);  // Close the delete modal
+          setIsDeleteModalOpen(false);
         })
         .catch((err) => {
           console.log(err);
-          toast.error("Error deleting category");
-          setIsDeleteModalOpen(false);  // Close the delete modal in case of error
+          toast.error(err.message);
+          setIsDeleteModalOpen(false);
         });
     }
   };
@@ -85,7 +83,6 @@ function Category() {
 
   return (
     <div className="p-4">
-      {/* Add Category Modal */}
       {isModalOpen && (
         <Modal onClose={modalOch}>
           <div className="p-5 bg-white rounded-2xl relative">
@@ -141,7 +138,6 @@ function Category() {
         </Modal>
       )}
 
-      {/* Delete Confirmation Modal */}
       {isDeleteModalOpen && (
         <Modal onClose={() => setIsDeleteModalOpen(false)}>
           <div className="p-5 bg-white rounded-2xl text-center">
@@ -149,23 +145,22 @@ function Category() {
             <p className="py-4">You are about to delete this category.</p>
             <div className="flex justify-center gap-4">
               <button
-                onClick={confirmDelete}
-                className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium"
-              >
-                Yes, Delete
-              </button>
-              <button
                 onClick={() => setIsDeleteModalOpen(false)}
                 className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium"
               >
                 Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium"
+              >
+                Yes, Delete
               </button>
             </div>
           </div>
         </Modal>
       )}
 
-      {/* Category List Section */}
       <div className="flex justify-between bg-white/18 px-4 py-5 rounded-xl mb-5">
         <div className="text-3xl tracking-wider font-extrabold text-white">
           Category
@@ -178,86 +173,81 @@ function Category() {
         </button>
       </div>
 
-      <div className="relative overflow-hidden rounded-md shadow-md">
-        <div className="overflow-x-auto">
-          <div className="min-w-full inline-block align-middle">
-            {/* Fixed Header */}
-            <div className="sticky top-0 z-10">
-              <table className="min-w-full border-separate border-spacing-0">
+      <div className="relative overflow-hidden rounded-md shadow-xl shadow-white/5">
+        <div className="overflow-y-auto max-h-[calc(110vh-200px)] no-scrollbar">
+          {loading ? (
+            <div className="flex flex-col gap-4 items-center py-5 text-3xl text-white">
+              <FaSpinner className="animate-spin " />
+              <div className="">loading</div>
+            </div>
+          ) : (
+            <table className="min-w-full border-collapse border-spacing-0">
+              {data && data.length > 0 ? (
                 <thead>
                   <tr className="bg-gray-700 text-white">
-                    <th className="py-3 text-center border-b border-gray-600 w-16 sticky top-0 z-20 bg-gray-700">
+                    <th className="py-3 px-2 text-center border border-gray-600 w-16 sticky top-0 z-20 bg-gray-700">
                       №
                     </th>
-                    <th className="py-3 text-center border-b border-gray-600 sticky top-0 z-20 bg-gray-700">
+                    <th className="py-3 px-2 text-center border border-gray-600 sticky top-0 z-20 bg-gray-700">
                       Title Eng
                     </th>
-                    <th className="py-3 text-center border-b border-gray-600 sticky top-0 z-20 bg-gray-700">
+                    <th className="py-3 px-2 text-center border border-gray-600 sticky top-0 z-20 bg-gray-700">
                       Title Ru
                     </th>
-                    <th className="py-3 text-center border-b border-gray-600 sticky top-0 z-20 bg-gray-700">
+                    <th className="py-3 px-2 text-center border border-gray-600 sticky top-0 z-20 bg-gray-700">
                       Title De
                     </th>
-                    <th className="py-3 text-center border-b border-gray-600 sticky  z-20 bg-gray-700">
+                    <th className="py-3 px-2 text-center border border-gray-600 sticky top-0 z-20 bg-gray-700">
                       Actions
                     </th>
                   </tr>
                 </thead>
-              </table>
-            </div>
-
-            {/* Scrollable Body */}
-            <div className="overflow-y-auto max-h-[calc(100vh-200px)] no-scrollbar">
-              <table className="min-w-full border-separate border-spacing-0">
+              ) : (
                 <tbody>
-                  {loading ? (
-                    <tr>
-                      <td colSpan="5" className="py-8 text-center">
-                        <FaSpinner className="animate-spin mx-auto text-3xl text-white" />
-                      </td>
-                    </tr>
-                  ) : data && data.length > 0 ? (
-                    data.map((category, index) => (
-                      <tr
-                        key={category.id}
-                        className="hover:bg-white/2 text-white text-center"
-                      >
-                        <td className="py-3 px-4 border-b border-gray-600">
-                          {index + 1}
-                        </td>
-                        <td className="py-3 px-4 border-b border-gray-600">
-                          {category.name_en}
-                        </td>
-                        <td className="py-3 px-4 border-b border-gray-600">
-                          {category.name_ru}
-                        </td>
-                        <td className="py-3 px-4 border-b border-gray-600">
-                          {category.name_de}
-                        </td>
-                        <td className="py-3  border-b border-gray-600 flex justify-center gap-5">
-                          <button className="bg-blue-500 px-2 rounded-md font-medium cursor-pointer">
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDelete(category.id)}
-                            className="bg-red-500  px-2 rounded-md font-medium cursor-pointer"
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="5" className="py-8 text-center text-white">
-                        No categories found
-                      </td>
-                    </tr>
-                  )}
+                  <tr>
+                    <td colSpan="100" className="py-8 text-center text-white">
+                      No Data Available
+                      <MdImageNotSupported size={30} className="mx-auto mt-5" />
+                    </td>
+                  </tr>
                 </tbody>
-              </table>
-            </div>
-          </div>
+              )}
+
+              <tbody>
+                {data &&
+                  data.map((item, index) => (
+                    <tr
+                      key={item.id}
+                      className="hover:bg-white/2 text-white text-center"
+                    >
+                      <td className="py-3 border border-gray-600">
+                        {index + 1}
+                      </td>
+                      <td className="py-3 border border-gray-600">
+                        {item.name_en}
+                      </td>
+                      <td className="py-3 border border-gray-600">
+                        {item.name_ru}
+                      </td>
+                      <td className="py-3 border border-gray-600">
+                        {item.name_de}
+                      </td>
+                      <td className="py-3 border border-gray-600">
+                        <button className="text-blue-500 hover:scale-105 duration-150 hover:underline mr-2 font-medium cursor-pointer">
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(item.id)}
+                          className="text-red-500 hover:scale-105 duration-150 hover:underline font-medium cursor-pointer"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>
