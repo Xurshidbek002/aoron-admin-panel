@@ -12,6 +12,23 @@ function Team() {
   const [delId, setDelId] = useState(null);
   const [data, setData] = useState([]);
 
+  const getApi = () => {
+    setLoading(true);
+    API.get("/team-section")
+      .then((res) => {
+        setData(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => setLoading(false));
+  };
+  useEffect(() => {
+    getApi();
+  }, []);
+
+  console.log(data);
+
   return (
     <div className="p-4">
       {/* <Modal>
@@ -75,7 +92,82 @@ function Team() {
       </div>
 
       <div className="relative overflow-hidden rounded-md shadow-xl shadow-white/5">
-        <div className="overflow-y-auto max-h-[calc(100vh-200px)] no-scrollbar"></div>
+        <div className="overflow-y-auto max-h-[calc(110vh-200px)] no-scrollbar">
+          {loading ? (
+            <div className="flex flex-col gap-4 items-center py-5 text-3xl text-white">
+              <FaSpinner className="animate-spin " />
+              <div className="">loading</div>
+            </div>
+          ) : (
+            <table className="min-w-full border-collapse border-spacing-0">
+              {data && data.length > 0 ? (
+                <thead>
+                  <tr className="bg-gray-700 text-white">
+                    <th className="py-3 px-2 text-center border border-gray-600 w-16 sticky top-0 z-20 bg-gray-700">
+                      №
+                    </th>
+                    <th className="py-3 px-2 text-center border border-gray-600 sticky top-0 z-20 bg-gray-700">
+                      Images{" "}
+                    </th>
+                    <th className="py-3 px-2 text-center border border-gray-600 sticky top-0 z-20 bg-gray-700">
+                      Full Name{" "}
+                    </th>
+                    <th className="py-3 px-2 text-center border border-gray-600 sticky top-0 z-20 bg-gray-700">
+                      Position{" "}
+                    </th>
+                    <th className="py-3 px-2 text-center border border-gray-600 sticky top-0 z-20 bg-gray-700">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+              ) : (
+                <tbody>
+                  <tr>
+                    <td colSpan="100" className="py-8 text-center text-white">
+                      No Data Available
+                      <MdImageNotSupported size={30} className="mx-auto mt-5" />
+                    </td>
+                  </tr>
+                </tbody>
+              )}
+
+              <tbody>
+                {data &&
+                  data.map((item, index) => (
+                    <tr
+                      key={item.id}
+                      className="hover:bg-white/2 text-white text-center"
+                    >
+                      <td className="py-3 border border-gray-600">
+                        {index + 1}
+                      </td>
+                      <td className="py-3 border border-gray-600">
+                        <img
+                          src={`https://back.ifly.com.uz/${item.image}`}
+                          alt={item.title_en}
+                          className="w-16 h-16 object-cover mx-auto rounded-md"
+                        />
+                      </td>
+                      <td className="py-3 border border-gray-600">
+                        {item.full_name}
+                      </td>
+                      <td className="py-3 border border-gray-600">
+                        {item.position_en}
+                      </td>
+                      <td className="py-3 border border-gray-600">
+                        <button className="text-blue-500 hover:scale-105 duration-150 hover:underline mr-2 font-medium cursor-pointer">
+                          Edit
+                        </button>
+                        <button className="text-red-500 hover:scale-105 duration-150 hover:underline font-medium cursor-pointer">
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          )}
+        </div>{" "}
       </div>
     </div>
   );

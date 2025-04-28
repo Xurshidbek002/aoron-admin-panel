@@ -5,7 +5,6 @@ import Modal from "../Components/Modal";
 import { IoClose } from "react-icons/io5";
 import { toast } from "react-toastify";
 import { MdImageNotSupported } from "react-icons/md";
-import { thead } from "motion/react-client";
 
 function Category() {
   const [data, setData] = useState([]);
@@ -154,7 +153,7 @@ function Category() {
                 onClick={confirmDelete}
                 className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium"
               >
-                Yes, Delete
+                Delete
               </button>
             </div>
           </div>
