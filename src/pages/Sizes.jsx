@@ -8,10 +8,10 @@ import { toast } from "react-toastify";
 
 function Sizes() {
   const [addModal, setAddModal] = useState(false);
-  const [delModal, setDelModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [delId, setDelId] = useState(null);
   const [data, setData] = useState([]);
+  const [editId, setEditId] = useState(null);
+  const [formData, setFormData] = useState({ size: "" });
 
   const getApi = () => {
     setLoading(true);
@@ -27,29 +27,58 @@ function Sizes() {
   useEffect(() => {
     getApi();
   }, []);
-  // ------------------post
-  const api = "https://back.ifly.com.uz/api/sizes";
-  const token = localStorage.getItem("token");
-
+  // ------------------post --- edit
+  const handleEdit = (item) => {
+    setEditId(item.id);
+    setAddModal(true);
+    setFormData({ size: item?.size });
+  };
   const addModalOpen = () => {
     setAddModal(!addModal);
+    setFormData({ size: "" });
+    setEditId(null);
   };
-  const [formData, setFormData] = useState({ size: "" });
-
   const postSizes = (e) => {
     e.preventDefault();
-    fetch(api, {
-      method: "POST",
-      headers: {
-        "Content-type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(formData),
-    }).then((res) => {
-      toast.success(res.statusText);
-      setAddModal(false);
-      getApi();
-    });
+    const apiMethod = editId ? API.patch : API.post;
+    const apiUrl = editId ? `/sizes/${editId}` : "/sizes";
+
+    apiMethod(apiUrl, formData)
+      .then((res) => {
+        toast.success(res.statusText);
+        setFormData({ size: "" });
+        getApi();
+      })
+      .catch((err) => {
+        toast.error(err.message);
+      })
+      .finally(() => {
+        setAddModal(false);
+      });
+  };
+
+  // delete-----------------------
+  const [delModal, setDelModal] = useState(false);
+  const [delId, setDelId] = useState(null);
+  const handleDelete = (id) => {
+    setDelModal(true);
+    setDelId(id);
+  };
+  const appDelete = () => {
+    if (delId) {
+      API.delete(`/sizes/${delId}`)
+        .then((res) => {
+          toast.success(res.statusText);
+          getApi();
+        })
+        .catch((err) => {
+          toast.error(err.message);
+          console.log(err);
+        })
+        .finally(() => {
+          setDelModal(false);
+        });
+    }
   };
 
   return (
@@ -57,11 +86,14 @@ function Sizes() {
       {addModal && (
         <Modal onClose={addModalOpen}>
           <div className="p-5 bg-white rounded-2xl relative">
-            <button className="absolute top-2 right-2 p-1 hover:bg-black/20 rounded-full">
+            <button
+              onClick={addModalOpen}
+              className="absolute top-2 right-2 p-1 hover:bg-black/20 rounded-full"
+            >
               <IoClose size={27} />
             </button>
             <h1 className="text-2xl pb-4 text-blue-800 font-extrabold">
-              Add Sizes
+              {editId ? "Edit Sizes" : "Add Sizes"}
             </h1>
             <form
               action=""
@@ -69,6 +101,7 @@ function Sizes() {
               className="flex flex-col gap-5"
             >
               <input
+                placeholder="Size"
                 required
                 value={formData.size}
                 onChange={(e) =>
@@ -81,27 +114,35 @@ function Sizes() {
                 type="submit"
                 className="bg-blue-700 py-2 text-xl rounded-xl font-bold text-white"
               >
-                Add Sizes
+                {editId ? "Edit Sizes" : "Add Sizes"}
               </button>
             </form>
           </div>
         </Modal>
       )}
 
-      {/* <Modal>
-        <div className="p-5 bg-white rounded-2xl text-center">
-          <h2 className="text-xl font-bold text-red-600">Are you sure?</h2>
-          <p className="py-4">You are about to delete this category.</p>
-          <div className="flex justify-center gap-4">
-            <button className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium">
-              Cancel
-            </button>
-            <button className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium">
-              Yes, Delete
-            </button>
+      {delModal && (
+        <Modal onClose={() => setDelModal(false)}>
+          <div className="p-5 bg-white rounded-2xl text-center">
+            <h2 className="text-xl font-bold text-red-600">Are you sure?</h2>
+            <p className="py-4">You are about to delete this Sizes.</p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => setDelModal(false)}
+                className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={appDelete}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium"
+              >
+                Delete
+              </button>
+            </div>
           </div>
-        </div>
-      </Modal> */}
+        </Modal>
+      )}
 
       <div className="flex justify-between bg-white/18 px-4 py-5 rounded-xl mb-5">
         <div className="text-3xl tracking-wider font-extrabold text-white">
@@ -115,7 +156,7 @@ function Sizes() {
         </button>
       </div>
 
-      <div className="relative overflow-hidden rounded-md shadow-xl shadow-white/5">
+      <div className="relative overflow-hidden rounded-md shadow-2xl">
         <div className="overflow-y-auto max-h-[calc(110vh-200px)] no-scrollbar">
           {loading ? (
             <div className="flex flex-col gap-4 items-center py-5 text-3xl text-white">
@@ -164,10 +205,16 @@ function Sizes() {
                         {item.size}
                       </td>
                       <td className="py-3 border border-gray-600">
-                        <button className="text-blue-500 hover:scale-105 duration-150 hover:underline mr-2 font-medium cursor-pointer">
+                        <button
+                          onClick={() => handleEdit(item)}
+                          className="text-blue-500 hover:scale-105 duration-150 hover:underline mr-2 font-medium cursor-pointer"
+                        >
                           Edit
                         </button>
-                        <button className="text-red-500 hover:scale-105 duration-150 hover:underline font-medium cursor-pointer">
+                        <button
+                          onClick={() => handleDelete(item.id)}
+                          className="text-red-500 hover:scale-105 duration-150 hover:underline font-medium cursor-pointer"
+                        >
                           Delete
                         </button>
                       </td>

@@ -12,8 +12,14 @@ function Discount() {
   const [loading, setLoading] = useState(false);
   const [delId, setDelId] = useState(null);
   const [data, setData] = useState([]);
+  const [editId, setEditId] = useState(null);
+  const [formData, setFormData] = useState({
+    discount: "",
+    started_at: "",
+    finished_at: "",
+    status: false,
+  });
 
-  // -----------------get-------------
   const getApi = () => {
     setLoading(true);
     API.get("/discount")
@@ -23,19 +29,13 @@ function Discount() {
       })
       .catch((err) => {
         console.log(err);
+        setLoading(false);
       });
   };
   useEffect(() => {
     getApi();
   }, []);
 
-  // ------------------post---------------
-  const [formData, setFormData] = useState({
-    discount: "",
-    started_at: "",
-    finished_at: "",
-    status: false,
-  });
   const postModal = () => {
     setAddModal(!addModal);
     setFormData({
@@ -44,29 +44,34 @@ function Discount() {
       finished_at: "",
       status: false,
     });
+    setEditId(null);
   };
-  const post = (e) => {
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    API.post("/discount", formData)
+    const apiMethod = editId ? API.patch : API.post;
+    const apiUrl = editId ? `/discount/${editId}` : "/discount";
+
+    apiMethod(apiUrl, formData)
       .then((res) => {
-        console.log(res);
+        toast.success(res?.statusText);
+        getApi();
         setAddModal(false);
-        toast.success(res.statusText);
         setFormData({
           discount: "",
           started_at: "",
           finished_at: "",
           status: false,
         });
-        getApi();
+        setEditId(null);
       })
       .catch((err) => {
         console.log(err);
-        toast.error(err.message);
+        toast.error("Something went wrong!");
         setAddModal(false);
       });
   };
-  //--------------------------------delete-----------------
+
   const handleDelete = (itemDelete) => {
     setDelId(itemDelete);
     setDelModal(true);
@@ -87,8 +92,21 @@ function Discount() {
         });
     }
   };
+
+  const handleEdit = (item) => {
+    setEditId(item.id);
+    setFormData({
+      discount: item.discount,
+      started_at: item.started_at,
+      finished_at: item.finished_at,
+      status: item.status,
+    });
+    setAddModal(true);
+  };
+
   return (
     <div className="p-4">
+      {/* ADD/EDIT MODAL */}
       {addModal && (
         <Modal onClose={postModal}>
           <div className="p-5 bg-white rounded-2xl relative">
@@ -99,12 +117,13 @@ function Discount() {
               <IoClose size={27} />
             </button>
             <h1 className="text-2xl pb-4 text-blue-800 font-extrabold">
-              Add Discount
+              {editId ? "Edit Discount" : "Add Discount"}
             </h1>
-            <form onSubmit={post} className="flex flex-col gap-5">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
               <input
                 required
                 type="number"
+                max={100}
                 value={formData.discount}
                 onChange={(e) =>
                   setFormData({ ...formData, discount: Number(e.target.value) })
@@ -145,17 +164,19 @@ function Discount() {
                 type="submit"
                 className="bg-blue-700 py-2 text-xl rounded-xl font-bold text-white"
               >
-                Add discount
+                {editId ? "Save Changes" : "Add Discount"}
               </button>
             </form>
           </div>
         </Modal>
       )}
+
+      {/* DELETE MODAL */}
       {delModal && (
         <Modal onClose={() => setDelModal(false)}>
           <div className="p-5 bg-white rounded-2xl text-center">
             <h2 className="text-xl font-bold text-red-600">Are you sure?</h2>
-            <p className="py-4">You are about to delete this category.</p>
+            <p className="py-4">You are about to delete this discount.</p>
             <div className="flex justify-center gap-4">
               <button
                 onClick={() => setDelModal(false)}
@@ -174,6 +195,7 @@ function Discount() {
         </Modal>
       )}
 
+      {/* TITLE + ADD BUTTON */}
       <div className="flex justify-between bg-white/18 px-4 py-5 rounded-xl mb-5">
         <div className="text-3xl tracking-wider font-extrabold text-white">
           Discount
@@ -186,7 +208,8 @@ function Discount() {
         </button>
       </div>
 
-      <div className="relative overflow-hidden rounded-md shadow-xl shadow-white/5">
+      {/* TABLE */}
+      <div className="relative overflow-hidden rounded-md shadow-2xl">
         <div className="overflow-y-auto max-h-[calc(110vh-200px)] no-scrollbar">
           {loading ? (
             <div className="flex flex-col gap-4 items-center py-5 text-3xl text-white">
@@ -205,16 +228,16 @@ function Discount() {
                       Discount (%)
                     </th>
                     <th className="py-3 px-2 text-center border border-gray-600 sticky top-0 z-20 bg-gray-700">
-                      Created Date{" "}
+                      Start Date
                     </th>
                     <th className="py-3 px-2 text-center border border-gray-600 sticky top-0 z-20 bg-gray-700">
-                      Finished Date{" "}
+                      End Date
                     </th>
                     <th className="py-3 px-2 text-center border border-gray-600 sticky top-0 z-20 bg-gray-700">
-                      Status{" "}
+                      Status
                     </th>
                     <th className="py-3 px-2 text-center border border-gray-600 sticky top-0 z-20 bg-gray-700">
-                      Actions{" "}
+                      Actions
                     </th>
                   </tr>
                 </thead>
@@ -249,18 +272,18 @@ function Discount() {
                       </td>
                       <td className="py-3 border border-gray-600">
                         <span
-                          className={`${
-                            item.status == true
-                              ? "text-green-500"
-                              : "text-red-500"
-                          }`}
+                          className={
+                            item.status ? "text-green-500" : "text-red-500"
+                          }
                         >
-                          {item.status == true ? "active" : "inActive"}
+                          {item.status ? "active" : "inActive"}
                         </span>
                       </td>
-
                       <td className="py-3 border border-gray-600">
-                        <button className="text-blue-500 hover:scale-105 duration-150 hover:underline mr-2 font-medium cursor-pointer">
+                        <button
+                          onClick={() => handleEdit(item)}
+                          className="text-blue-500 hover:scale-105 duration-150 hover:underline mr-2 font-medium cursor-pointer"
+                        >
                           Edit
                         </button>
                         <button

@@ -1,15 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import img from "../assets/logo.png";
+import Modal from "./Modal";
 
 const base = [
   {
     path: "/",
-    name: "Category",
+    name: "Products",
   },
   {
-    path: "/products",
-    name: "Products",
+    path: "/category",
+    name: "Category",
   },
 
   {
@@ -43,6 +44,10 @@ const base = [
 ];
 
 function Layout() {
+  const [open, setOpen] = useState(false);
+  const openModal = () => {
+    setOpen(!open);
+  };
   const navigate = useNavigate();
   const removeToken = () => {
     localStorage.removeItem("token");
@@ -50,6 +55,27 @@ function Layout() {
   };
   return (
     <div>
+      {open && (
+        <Modal onClose={openModal}>
+          <h2 className="text-center p-5 text-2xl font-extrabold">
+            Are you sure you want to <br /> log out?
+          </h2>
+          <div className="flex justify-center gap-5 p-5">
+            <button
+              onClick={openModal}
+              className="px-3 py-1 rounded-md text-white bg-gray-500 hover:bg-gray-400 duration-150"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={removeToken}
+              className="px-3 py-1 rounded-md text-white bg-red-500 hover:bg-red-400 duration-150"
+            >
+              Log Out
+            </button>
+          </div>
+        </Modal>
+      )}
       <div className="">
         <div className="grid grid-cols-12 h-screen overflow-y-hidden">
           <div className="col-span-2">
@@ -69,7 +95,7 @@ function Layout() {
                 </NavLink>
               ))}
               <button
-                onClick={removeToken}
+                onClick={openModal}
                 className="absolute cursor-pointer bottom-0 mb-10 px-4 py-1 bg-red-700/80 hover:bg-red-700 text-white hover:tracking-wider duration-500  rounded-2xl font-bold"
               >
                 Log out

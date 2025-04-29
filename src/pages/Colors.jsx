@@ -4,12 +4,10 @@ import { IoClose } from "react-icons/io5";
 import { FaSpinner } from "react-icons/fa";
 import { MdImageNotSupported } from "react-icons/md";
 import API from "../api/Axios";
+import { toast } from "react-toastify";
 
 function Colors() {
-  const [addModal, setAddModal] = useState(false);
-  const [delModal, setDelModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [delId, setDelId] = useState(null);
   const [data, setData] = useState([]);
 
   const getApi = () => {
@@ -27,70 +25,160 @@ function Colors() {
     getApi();
   }, []);
 
-  console.log(data);
+  // -----------------------post edit---------------------
+  const [formData, setFormData] = useState({
+    color_en: "",
+    color_ru: "",
+    color_de: "",
+  });
+  const [addModal, setAddModal] = useState(false);
+  const [editId, setEditId] = useState(null);
+  const editPostModal = () => {
+    setAddModal(!addModal);
+    setFormData({ color_de: "", color_en: "", color_ru: "" });
+    setEditId(null);
+  };
+  const handleEdit = (item) => {
+    setEditId(item.id);
+    setFormData({
+      color_de: item.color_de,
+      color_en: item.color_en,
+      color_ru: item.color_ru,
+    });
+    setAddModal(true);
+  };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const apiMethod = editId ? API.patch : API.post;
+    const apiUrl = editId ? `/colors/${editId}` : "/colors";
+    apiMethod(apiUrl, formData)
+      .then((res) => {
+        toast.success(res.statusText);
+        getApi();
+        setFormData({ color_de: "", color_en: "", color_ru: "" });
+        setEditId(null);
+        setAddModal(false);
+      })
+      .catch((err) => {
+        toast.error(err.message);
+      });
+  };
+
+  // ---------------------------delete
+  const [delModal, setDelModal] = useState(false);
+  const [delId, setDelId] = useState(null);
+  const handleDelete = (id) => {
+    setDelModal(true);
+    setDelId(id);
+  };
+  const deleteColor = () => {
+    if (delId) {
+      API.delete(`/colors/${delId}`)
+        .then((res) => {
+          toast.success(res.statusText);
+          setDelModal(false);
+          getApi();
+        })
+        .catch((err) => {
+          toast.error(err.message);
+        })
+        .finally(() => {
+          setDelModal(false);
+        });
+    }
+  };
+
   return (
     <div className="p-4">
-      {/* <Modal>
-        <div className="p-5 bg-white rounded-2xl relative">
-          <button className="absolute top-2 right-2 p-1 hover:bg-black/20 rounded-full">
-            <IoClose size={27} />
-          </button>
-          <h1 className="text-2xl pb-4 text-blue-800 font-extrabold">
-            Add Category
-          </h1>
-          <form
-            onSubmit={handleSubmit}
-            action=""
-            className="flex flex-col gap-5"
-          >
-            <input
-              required
-              type="text"
-              className="py-2 w-100 rounded-md bg-cyan-400/15 focus:outline-cyan-500 px-4"
-            />
-            <input
-              required
-              className="py-2 w-100 rounded-md bg-cyan-400/15 focus:outline-cyan-500 px-4"
-            />
-            <input
-              required
-              className="py-2 w-100 rounded-md bg-cyan-400/15 focus:outline-cyan-500 px-4"
-            />
+      {addModal && (
+        <Modal onClose={editPostModal}>
+          <div className="p-5 bg-white rounded-2xl relative">
             <button
-              type="submit"
-              className="bg-blue-700 py-2 text-xl rounded-xl font-bold text-white"
+              onClick={editPostModal}
+              className="absolute top-2 right-2 p-1 hover:bg-black/20 rounded-full"
             >
-              Add Category
+              <IoClose size={27} />
             </button>
-          </form>
-        </div>
-      </Modal>
-
-      <Modal>
-        <div className="p-5 bg-white rounded-2xl text-center">
-          <h2 className="text-xl font-bold text-red-600">Are you sure?</h2>
-          <p className="py-4">You are about to delete this category.</p>
-          <div className="flex justify-center gap-4">
-            <button className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium">
-              Cancel
-            </button>
-            <button className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium">
-              Yes, Delete
-            </button>
+            <h1 className="text-2xl pb-4 text-blue-800 font-extrabold">
+              {editId ? "Edit colors" : "Add Colors"}
+            </h1>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+              <input
+                required
+                placeholder="Colors En"
+                type="text"
+                value={formData.color_en}
+                onChange={(e) =>
+                  setFormData({ ...formData, color_en: e.target.value })
+                }
+                className="py-2 w-100 rounded-md bg-cyan-400/15 focus:outline-cyan-500 px-4"
+              />
+              <input
+                required
+                placeholder="Colors Ru"
+                type="text"
+                value={formData.color_ru}
+                onChange={(e) =>
+                  setFormData({ ...formData, color_ru: e.target.value })
+                }
+                className="py-2 w-100 rounded-md bg-cyan-400/15 focus:outline-cyan-500 px-4"
+              />
+              <input
+                required
+                placeholder="Colors De"
+                type="text"
+                value={formData.color_de}
+                onChange={(e) =>
+                  setFormData({ ...formData, color_de: e.target.value })
+                }
+                className="py-2 w-100 rounded-md bg-cyan-400/15 focus:outline-cyan-500 px-4"
+              />
+              <button
+                type="submit"
+                className="bg-blue-700 py-2 text-xl rounded-xl font-bold text-white"
+              >
+                {editId ? "Edit colors" : "Add Colors"}
+              </button>
+            </form>
           </div>
-        </div>
-      </Modal> */}
+        </Modal>
+      )}
+      {delModal && (
+        <Modal onClose={() => setDelModal(false)}>
+          <div className="p-5 bg-white rounded-2xl text-center">
+            <h2 className="text-xl font-bold text-red-600">Are you sure?</h2>
+            <p className="py-4">You are about to delete this Colors</p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => setDelModal(false)}
+                className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={deleteColor}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
 
       <div className="flex justify-between bg-white/18 px-4 py-5 rounded-xl mb-5">
         <div className="text-3xl tracking-wider font-extrabold text-white">
           Colors
         </div>
-        <button className="px-4 py-2 cursor-pointer bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition">
+        <button
+          onClick={editPostModal}
+          className="px-4 py-2 cursor-pointer bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition"
+        >
           Add Colors
         </button>
       </div>
 
-      <div className="relative overflow-hidden rounded-md shadow-xl shadow-white/5">
+      <div className="relative overflow-hidden rounded-md shadow-2xl">
         <div className="overflow-y-auto max-h-[calc(110vh-200px)] no-scrollbar">
           {loading ? (
             <div className="flex flex-col gap-4 items-center py-5 text-3xl text-white">
@@ -150,10 +238,16 @@ function Colors() {
                         {item.color_de}
                       </td>
                       <td className="py-3 border border-gray-600">
-                        <button className="text-blue-500 hover:scale-105 duration-150 hover:underline mr-2 font-medium cursor-pointer">
+                        <button
+                          onClick={() => handleEdit(item)}
+                          className="text-blue-500 hover:scale-105 duration-150 hover:underline mr-2 font-medium cursor-pointer"
+                        >
                           Edit
                         </button>
-                        <button className="text-red-500 hover:scale-105 duration-150 hover:underline font-medium cursor-pointer">
+                        <button
+                          onClick={() => handleDelete(item.id)}
+                          className="text-red-500 hover:scale-105 duration-150 hover:underline font-medium cursor-pointer"
+                        >
                           Delete
                         </button>
                       </td>

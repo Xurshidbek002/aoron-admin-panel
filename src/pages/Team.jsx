@@ -91,7 +91,7 @@ function Team() {
         </button>
       </div>
 
-      <div className="relative overflow-hidden rounded-md shadow-xl shadow-white/5">
+      <div className="relative overflow-hidden rounded-md shadow-2xl">
         <div className="overflow-y-auto max-h-[calc(110vh-200px)] no-scrollbar">
           {loading ? (
             <div className="flex flex-col gap-4 items-center py-5 text-3xl text-white">

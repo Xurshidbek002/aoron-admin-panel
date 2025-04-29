@@ -9,37 +9,51 @@ import { MdImageNotSupported } from "react-icons/md";
 function Category() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [isModalOpen, setIsModalModal] = useState(false);
+  const [isModalOpen, setIsModal] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [categoryIdToDelete, setCategoryIdToDelete] = useState(null);
+  const [editId, setEditId] = useState(null);
   const [formData, setFormData] = useState({
     name_en: "",
     name_de: "",
     name_ru: "",
   });
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const modalOch = () => {
+    setIsModal(!isModalOpen);
+    setFormData({
+      name_en: "",
+      name_de: "",
+      name_ru: "",
+    });
+    setEditId(null);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    API.post("/category", formData)
+    const metod = editId ? API.patch : API.post;
+    const apiUrl = editId ? `/category/${editId}` : "/category";
+    metod(apiUrl, formData)
       .then((res) => {
-        setIsModalModal(false);
+        setIsModal(false);
         toast.success(res.statusText);
         setFormData({ name_en: "", name_de: "", name_ru: "" });
         getCategory();
-        console.log(res);
+        setEditId(null);
       })
       .catch((err) => {
         console.log(err);
         toast.error(err.statusText);
       });
   };
-
-  const modalOch = () => {
-    setIsModalModal(!isModalOpen);
+  const handleEdit = (item) => {
+    setEditId(item.id);
+    setFormData({
+      name_de: item.name_de,
+      name_en: item.name_en,
+      name_ru: item.name_ru,
+    });
+    setIsModal(true); 
   };
 
   const getCategory = () => {
@@ -54,6 +68,9 @@ function Category() {
         setLoading(false);
       });
   };
+  useEffect(() => {
+    getCategory();
+  }, []);
 
   const handleDelete = (categoryId) => {
     setCategoryIdToDelete(categoryId);
@@ -76,10 +93,6 @@ function Category() {
     }
   };
 
-  useEffect(() => {
-    getCategory();
-  }, []);
-
   return (
     <div className="p-4">
       {isModalOpen && (
@@ -92,45 +105,45 @@ function Category() {
               <IoClose size={27} />
             </button>
             <h1 className="text-2xl pb-4 text-blue-800 font-extrabold">
-              Add Category
+              {editId ? "Edit Category" : "Add Category"}
             </h1>
-            <form
-              onSubmit={handleSubmit}
-              action=""
-              className="flex flex-col gap-5"
-            >
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
               <input
                 required
-                name="name_en"
                 type="text"
                 value={formData.name_en}
-                onChange={handleChange}
+                onChange={(e) =>
+                  setFormData({ ...formData, name_en: e.target.value })
+                }
                 placeholder="Name en"
                 className="py-2 w-100 rounded-md bg-cyan-400/15 focus:outline-cyan-500 px-4"
               />
               <input
                 required
-                name="name_de"
                 type="text"
-                value={formData.name_de}
-                onChange={handleChange}
-                placeholder="Name de"
+                value={formData.name_ru}
+                onChange={(e) =>
+                  setFormData({ ...formData, name_ru: e.target.value })
+                }
+                placeholder="Name ru"
                 className="py-2 w-100 rounded-md bg-cyan-400/15 focus:outline-cyan-500 px-4"
               />
               <input
                 required
-                name="name_ru"
                 type="text"
-                value={formData.name_ru}
-                onChange={handleChange}
-                placeholder="Name ru"
+                value={formData.name_de}
+                onChange={(e) =>
+                  setFormData({ ...formData, name_de: e.target.value })
+                }
+                placeholder="Name de"
                 className="py-2 w-100 rounded-md bg-cyan-400/15 focus:outline-cyan-500 px-4"
               />
+
               <button
                 type="submit"
                 className="bg-blue-700 py-2 text-xl rounded-xl font-bold text-white"
               >
-                Add Category
+                {editId ? "Edit Category" : "Add Category"}
               </button>
             </form>
           </div>
@@ -172,7 +185,7 @@ function Category() {
         </button>
       </div>
 
-      <div className="relative overflow-hidden rounded-md shadow-xl shadow-white/5">
+      <div className="relative overflow-hidden rounded-md shadow-2xl">
         <div className="overflow-y-auto max-h-[calc(110vh-200px)] no-scrollbar">
           {loading ? (
             <div className="flex flex-col gap-4 items-center py-5 text-3xl text-white">
@@ -232,7 +245,10 @@ function Category() {
                         {item.name_de}
                       </td>
                       <td className="py-3 border border-gray-600">
-                        <button className="text-blue-500 hover:scale-105 duration-150 hover:underline mr-2 font-medium cursor-pointer">
+                        <button
+                          onClick={() => handleEdit(item)}
+                          className="text-blue-500 hover:scale-105 duration-150 hover:underline mr-2 font-medium cursor-pointer"
+                        >
                           Edit
                         </button>
                         <button

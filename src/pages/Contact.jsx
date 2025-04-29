@@ -6,10 +6,7 @@ import { MdImageNotSupported } from "react-icons/md";
 import API from "../api/Axios";
 
 function Contact() {
-  const [addModal, setAddModal] = useState(false);
-  const [delModal, setDelModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [delId, setDelId] = useState(null);
   const [data, setData] = useState([]);
 
   const getApi = () => {
@@ -38,22 +35,11 @@ function Contact() {
           <h1 className="text-2xl pb-4 text-blue-800 font-extrabold">
             Add Category
           </h1>
-          <form
-            onSubmit={handleSubmit}
-            action=""
-            className="flex flex-col gap-5"
-          >
+          <form className="flex flex-col gap-5">
             <input
               required
+              placeholder="name"
               type="text"
-              className="py-2 w-100 rounded-md bg-cyan-400/15 focus:outline-cyan-500 px-4"
-            />
-            <input
-              required
-              className="py-2 w-100 rounded-md bg-cyan-400/15 focus:outline-cyan-500 px-4"
-            />
-            <input
-              required
               className="py-2 w-100 rounded-md bg-cyan-400/15 focus:outline-cyan-500 px-4"
             />
             <button
@@ -64,18 +50,18 @@ function Contact() {
             </button>
           </form>
         </div>
-      </Modal>
+      </Modal> */}
 
-      <Modal>
+      {/*  <Modal>
         <div className="p-5 bg-white rounded-2xl text-center">
           <h2 className="text-xl font-bold text-red-600">Are you sure?</h2>
-          <p className="py-4">You are about to delete this category.</p>
+          <p className="py-4">You are about to delete this Contact</p>
           <div className="flex justify-center gap-4">
             <button className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium">
               Cancel
             </button>
             <button className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium">
-              Yes, Delete
+              Delete
             </button>
           </div>
         </div>
@@ -90,7 +76,7 @@ function Contact() {
         </button>
       </div>
 
-      <div className="relative overflow-hidden rounded-md shadow-md">
+      <div className="relative overflow-hidden rounded-md shadow-2xl">
         <div className="overflow-y-auto max-h-[calc(110vh-200px)] no-scrollbar">
           {loading ? (
             <div className="flex flex-col gap-4 items-center py-5 text-3xl text-white">
