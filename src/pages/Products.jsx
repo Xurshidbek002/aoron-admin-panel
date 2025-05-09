@@ -163,7 +163,7 @@ function Products() {
     <div className="p-4">
       {isOpen && (
         <Modal onClose={() => setIsOpen(false)}>
-          <div className="p-5 w-200 h-130 overflow-y-auto bg-white rounded-2xl relative">
+          <div className="p-5 w-180 h-130 overflow-y-auto bg-white rounded-2xl overflow-hidden no-scrollbar relative">
             <button
               onClick={() => setIsOpen(false)}
               className="absolute top-2 right-2 p-1 hover:bg-black/20 rounded-full"
@@ -175,202 +175,219 @@ function Products() {
               {editId ? "Edit Product" : "Add Product"}
             </h1>
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-2">
               {/* Title fields */}
-              <input
-                type="text"
-                value={formData.title_ru}
-                onChange={(e) =>
-                  setFormData({ ...formData, title_ru: e.target.value })
-                }
-                placeholder="Title (ru)"
-                className="input"
-                required
-              />
-              <input
-                type="text"
-                value={formData.title_en}
-                onChange={(e) =>
-                  setFormData({ ...formData, title_en: e.target.value })
-                }
-                placeholder="Title (en)"
-                className="input"
-                required
-              />
-              <input
-                type="text"
-                value={formData.title_de}
-                onChange={(e) =>
-                  setFormData({ ...formData, title_de: e.target.value })
-                }
-                placeholder="Title (de)"
-                className="input"
-                required
-              />
-
+              <div className=" flex gap-2">
+                <input
+                  type="text"
+                  value={formData.title_ru}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title_ru: e.target.value })
+                  }
+                  placeholder="Title (ru)"
+                  className="bg-gray-100 px-3 py-1 w-full rounded-sm text-black outline-blue-400"
+                  required
+                />
+                <input
+                  type="text"
+                  value={formData.title_en}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title_en: e.target.value })
+                  }
+                  placeholder="Title (en)"
+                  className="bg-gray-100 px-3 py-1 w-full rounded-sm text-black outline-blue-400"
+                  required
+                />
+                <input
+                  type="text"
+                  value={formData.title_de}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title_de: e.target.value })
+                  }
+                  placeholder="Title (de)"
+                  className="bg-gray-100 px-3 py-1 w-full rounded-sm text-black outline-blue-400"
+                  required
+                />
+              </div>
               {/* Description fields */}
-              <textarea
-                value={formData.description_ru}
-                onChange={(e) =>
-                  setFormData({ ...formData, description_ru: e.target.value })
-                }
-                placeholder="Description (ru)"
-                className="input"
-                required
-              />
-              <textarea
-                value={formData.description_en}
-                onChange={(e) =>
-                  setFormData({ ...formData, description_en: e.target.value })
-                }
-                placeholder="Description (en)"
-                className="input"
-                required
-              />
-              <textarea
-                value={formData.description_de}
-                onChange={(e) =>
-                  setFormData({ ...formData, description_de: e.target.value })
-                }
-                placeholder="Description (de)"
-                className="input"
-                required
-              />
+              <div className="flex gap-2">
+                <textarea
+                  value={formData.description_ru}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description_ru: e.target.value })
+                  }
+                  placeholder="Description (ru)"
+                  rows={3}
+                  className="bg-gray-100 px-3 py-1 w-full rounded-sm text-black outline-blue-400 resize-none"
+                  required
+                />
+                <textarea
+                  value={formData.description_en}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description_en: e.target.value })
+                  }
+                  placeholder="Description (en)"
+                  rows={3}
+                  className="bg-gray-100 px-3 py-1 w-full rounded-sm text-black outline-blue-400 resize-none"
+                  required
+                />
+                <textarea
+                  value={formData.description_de}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description_de: e.target.value })
+                  }
+                  placeholder="Description (de)"
+                  rows={3}
+                  className="bg-gray-100 px-3 py-1 w-full rounded-sm text-black outline-blue-400 resize-none "
+                  required
+                />
+              </div>
 
               {/* Price & Min Sell */}
-              <input
-                type="number"
-                value={formData.price}
-                onChange={(e) =>
-                  setFormData({ ...formData, price: e.target.value })
-                }
-                placeholder="Price"
-                className="input"
-                required
-              />
-              <input
-                type="number"
-                value={formData.min_sell}
-                onChange={(e) =>
-                  setFormData({ ...formData, min_sell: e.target.value })
-                }
-                placeholder="Min Sell"
-                className="input"
-                required
-              />
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  value={formData.price}
+                  onChange={(e) =>
+                    setFormData({ ...formData, price: e.target.value })
+                  }
+                  placeholder="Price"
+                  required
+                  className="bg-gray-200 w-full px-4 py-1 rounded-sm"
+                />
+                <input
+                  type="number"
+                  value={formData.min_sell}
+                  onChange={(e) =>
+                    setFormData({ ...formData, min_sell: e.target.value })
+                  }
+                  placeholder="Min Sell"
+                  className="bg-gray-200 w-full px-4 py-1 rounded-sm"
+                  required
+                />
 
-              {/* Category Select */}
-              <select
-                value={formData.category_id}
-                onChange={(e) =>
-                  setFormData({ ...formData, category_id: e.target.value })
-                }
-                className="input"
-                required
-              >
-                <option value="">Select Category</option>
-                {category.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name_ru}
-                  </option>
-                ))}
-              </select>
-
-              {/* Discount Select */}
-              <select
-                value={formData.discount_id}
-                onChange={(e) =>
-                  setFormData({ ...formData, discount_id: e.target.value })
-                }
-                className="input"
-              >
-                <option value="">Select Discount</option>
-                {discount.map((dis) => (
-                  <option key={dis.id} value={dis.id}>
-                    {dis.discount}
-                  </option>
-                ))}
-              </select>
-
-              {/* Sizes Checkboxes */}
-              <div>
-                <p className="font-bold text-gray-700">Sizes:</p>
-                <div className="flex flex-wrap gap-3">
-                  {sizes.map((size) => (
-                    <label key={size.id} className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        value={size.id}
-                        checked={formData.sizes_id.includes(size.id)} // ← faqat backenddan kelgan id bor bo‘lsa belgilangan bo‘ladi
-                        onChange={(e) => {
-                          const { value, checked } = e.target;
-                          const id = parseInt(value); // ID raqam bo‘lsa
-
-                          const updated = checked
-                            ? [...formData.sizes_id, id]
-                            : formData.sizes_id.filter((item) => item !== id);
-
-                          setFormData({ ...formData, sizes_id: updated });
-                        }}
-                      />
-                      {size.size}
-                    </label>
+                {/* Category Select */}
+                <select
+                  value={formData.category_id}
+                  onChange={(e) =>
+                    setFormData({ ...formData, category_id: e.target.value })
+                  }
+                  className="bg-gray-200 w-full px-4 py-1 rounded-sm"
+                  required
+                >
+                  <option value="">Select Category</option>
+                  {category.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name_ru}
+                    </option>
                   ))}
+                </select>
+
+                {/* Discount Select */}
+                <select
+                  value={formData.discount_id}
+                  onChange={(e) =>
+                    setFormData({ ...formData, discount_id: e.target.value })
+                  }
+                  className="bg-gray-200 w-full px-4 py-1 rounded-sm"
+                >
+                  <option value="">Select Discount</option>
+                  {discount.map((dis) => (
+                    <option key={dis.id} value={dis.id}>
+                      {dis.discount}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex gap-2 justify-center">
+                {/* Sizes Checkboxes */}
+                <div className="bg-gray-200 w-full p-2 rounded-sm">
+                  <p className="font-bold text-gray-700">Sizes:</p>
+                  <div className="flex flex-wrap gap-3">
+                    {sizes.map((size) => (
+                      <label key={size.id} className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          value={size.id}
+                          checked={formData.sizes_id.includes(size.id)} // bu yerda number
+                          onChange={(e) => {
+                            const id = Number(e.target.value);
+                            const updated = e.target.checked
+                              ? [...formData.sizes_id, id]
+                              : formData.sizes_id.filter((item) => item !== id);
+                            setFormData({ ...formData, sizes_id: updated });
+                          }}
+                        />
+                        {size.size}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Colors Checkboxes */}
+                <div className="bg-gray-200 w-full p-2 rounded-sm">
+                  <p className="font-bold text-gray-700">Colors:</p>
+                  <div className="flex flex-wrap gap-3">
+                    {colors.map((color) => (
+                      <label key={color.id} className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          value={color.id}
+                          checked={formData.colors_id.includes(color.id)} // ← endi bu ham number
+                          onChange={(e) => {
+                            const id = Number(e.target.value);
+                            const updated = e.target.checked
+                              ? [...formData.colors_id, id]
+                              : formData.colors_id.filter(
+                                  (item) => item !== id
+                                );
+                            setFormData({ ...formData, colors_id: updated });
+                          }}
+                        />
+                        {color.color_en}
+                      </label>
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              {/* Colors Checkboxes */}
-              <div>
-                <p className="font-bold text-gray-700">Colors:</p>
-                <div className="flex flex-wrap gap-3">
-                  {colors.map((color) => (
-                    <label key={color.id} className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        value={color.id}
-                        checked={formData.colors_id.includes(String(color.id))}
-                        onChange={(e) => {
-                          const { value, checked } = e.target;
-                          const updated = checked
-                            ? [...formData.colors_id, value]
-                            : formData.colors_id.filter((id) => id !== value);
-                          setFormData({ ...formData, colors_id: updated });
-                        }}
-                      />
-                      {color.color_en}
-                    </label>
-                  ))}
+              <div className="">
+                <h2 className="text-2xl">Materials</h2>
+                <div className="flex gap-2">
+                  {/* Materials */}
+                  <input
+                    type="number"
+                    value={formData.materials.cotton}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        materials: {
+                          ...formData.materials,
+                          cotton: e.target.value,
+                        },
+                      })
+                    }
+                    placeholder="Cotton %"
+                    className="px-4 py-1 bg-gray-200 w-full rounded-md input-no-spinner"
+                  />
+                  <input
+                    type="number"
+                    value={formData.materials.wool}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        materials: {
+                          ...formData.materials,
+                          wool: e.target.value,
+                        },
+                      })
+                    }
+                    placeholder="Wool %"
+                    className="px-4 py-1 bg-gray-200 w-full rounded-md input-no-spinner"
+                  />
                 </div>
               </div>
-
-              {/* Materials */}
-              <input
-                type="text"
-                value={formData.materials.cotton}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    materials: {
-                      ...formData.materials,
-                      cotton: e.target.value,
-                    },
-                  })
-                }
-                placeholder="Cotton %"
-                className="input"
-              />
-              <input
-                type="text"
-                value={formData.materials.wool}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    materials: { ...formData.materials, wool: e.target.value },
-                  })
-                }
-                placeholder="Wool %"
-                className="input"
-              />
 
               {/* File input */}
               <input
@@ -378,7 +395,7 @@ function Products() {
                 onChange={(e) =>
                   setFormData({ ...formData, files: e.target.files[0] })
                 }
-                className="input"
+                className="bg-blue-500 w-[40%] px-5 py-2 rounded-2xl"
               />
 
               {/* Submit */}
