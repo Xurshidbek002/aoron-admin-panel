@@ -7,7 +7,7 @@ import API from "../api/Axios";
 import { toast } from "react-toastify";
 
 function Team() {
-  const api = "https://back.ifly.com.uz/api/team-section";
+  const api = "https://testaoron.limsa.uz/api/team-section";
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
   const token = localStorage.getItem("token");
@@ -310,7 +310,7 @@ function Team() {
                       </td>
                       <td className="py-3 border border-gray-600">
                         <img
-                          src={`https://back.ifly.com.uz/${item.image}`}
+                          src={`https://testaoron.limsa.uz/${item.image}`}
                           alt={item.title_en}
                           className="w-16 h-16 object-cover mx-auto rounded-md"
                         />

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://back.ifly.com.uz/api",
+  baseURL: "https://testaoron.limsa.uz/api",
 });
 
 API.interceptors.request.use((config) => {

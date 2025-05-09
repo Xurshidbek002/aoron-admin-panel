@@ -27,7 +27,7 @@ function News() {
 
   // ------------------------------post-edit-------------
 
-  const api = "https://back.ifly.com.uz/api/news";
+  const api = "https://testaoron.limsa.uz/api/news";
   const [formData, setFormData] = useState({
     title_en: "",
     title_ru: "",
@@ -130,7 +130,7 @@ function News() {
       description_ru: item.description_ru || "",
       description_de: item.description_de || "",
       file: item.file || null,
-      preview: `https://back.ifly.com.uz/${item.image}`,
+      preview: `https://testaoron.limsa.uz/${item.image}`,
     });
     setAddModal(true);
   };
@@ -357,7 +357,7 @@ function News() {
                       </td>
                       <td className="py-3 border border-gray-600">
                         <img
-                          src={`https://back.ifly.com.uz/${item.image}`}
+                          src={`https://testaoron.limsa.uz/${item.image}`}
                           alt={item.title_en}
                           className="w-16 h-16 object-cover mx-auto rounded-md"
                         />

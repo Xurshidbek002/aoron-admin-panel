@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from "../Components/Modal";
 import { IoClose } from "react-icons/io5";
 import { FaSpinner } from "react-icons/fa";
@@ -22,6 +22,7 @@ function Products() {
         setLoading(false);
       });
   };
+
   useEffect(() => {
     getProduct();
   }, []);
@@ -45,14 +46,15 @@ function Products() {
     },
     files: null,
   };
-  const [formData, setFormData] = useState(initialFormData);
 
+  const [formData, setFormData] = useState(initialFormData);
   const [isOpen, setIsOpen] = useState(false);
   const [category, setCategory] = useState([]);
   const [colors, setColors] = useState([]);
   const [sizes, setSizes] = useState([]);
   const [discount, setDiscount] = useState([]);
   const [editId, setEditId] = useState(null);
+
   useEffect(() => {
     API.get("/category").then((res) => {
       setCategory(res.data.data);
@@ -67,6 +69,7 @@ function Products() {
       setDiscount(res.data.data);
     });
   }, []);
+
   const addEditModal = () => {
     setIsOpen(true);
     setFormData(initialFormData);
@@ -75,6 +78,7 @@ function Products() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     const form = new FormData();
     form.append("title_ru", formData.title_ru);
     form.append("title_en", formData.title_en);
@@ -86,24 +90,32 @@ function Products() {
     form.append("min_sell", formData.min_sell);
     form.append("category_id", formData.category_id);
     form.append("discount_id", formData.discount_id);
-    form.append("sizes_id", formData.sizes_id.join(","));
-    form.append("colors_id", formData.colors_id.join(","));
+    formData.sizes_id.forEach((id) => {
+      form.append("sizes_id[]", id);
+    });
+    formData.colors_id.forEach((id) => {
+      form.append("colors_id[]", id);
+    });
     form.append("materials", JSON.stringify(formData.materials));
     if (formData.files) {
       form.append("files", formData.files);
     }
 
     const ApiMethod = editId ? API.patch : API.post;
-    const ApiUrl = editId ? `/product${editId}` : "/product";
+    const ApiUrl = editId ? `/product/${editId}` : "/product";
+
     ApiMethod(ApiUrl, form)
       .then((res) => {
-        toast.success(res.statusText);
+        toast.success(res.statusText || "Success");
+        setIsOpen(false);
+        getProduct();
       })
       .catch((err) => {
-        toast.error(err.message);
+        toast.error(err.response?.data?.message || "Error");
       });
   };
 
+  // Tahrirlash tugmasi bosilganda formani to‘ldirish
   const handleEdit = (item) => {
     setEditId(item.id);
     setIsOpen(true);
@@ -125,20 +137,44 @@ function Products() {
     });
   };
 
+  const [deleteId, setDeleteId] = useState(null);
+  const [delModal, setDelModal] = useState(false);
+  const handleDelete = (id) => {
+    setDeleteId(id);
+    setDelModal(true);
+  };
+  const productsDelete = () => {
+    API.delete(`/product/${deleteId}`)
+      .then((res) => {
+        toast.success("O'chirildi");
+        setDelModal(false);
+      })
+      .catch((err) => {
+        toast.error("Xatolik");
+      })
+      .finally(() => {
+        setDelModal(false);
+        setDeleteId(null);
+        getProduct();
+      });
+  };
+
   return (
     <div className="p-4">
       {isOpen && (
-        <Modal onClose={()=>setIsOpen(false)}>
+        <Modal onClose={() => setIsOpen(false)}>
           <div className="p-5 w-200 h-130 overflow-y-auto bg-white rounded-2xl relative">
             <button
-              onClick={()=>setIsOpen(false)}
+              onClick={() => setIsOpen(false)}
               className="absolute top-2 right-2 p-1 hover:bg-black/20 rounded-full"
             >
               <IoClose size={27} />
             </button>
+
             <h1 className="text-2xl pb-4 text-blue-800 font-extrabold">
               {editId ? "Edit Product" : "Add Product"}
             </h1>
+
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               {/* Title fields */}
               <input
@@ -251,54 +287,61 @@ function Products() {
                 <option value="">Select Discount</option>
                 {discount.map((dis) => (
                   <option key={dis.id} value={dis.id}>
-                    {dis.name_ru}
+                    {dis.discount}
                   </option>
                 ))}
               </select>
 
-              {/* Sizes Multi Select */}
-              <select
-                multiple
-                value={formData.sizes_id}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    sizes_id: Array.from(
-                      e.target.selectedOptions,
-                      (opt) => opt.value
-                    ),
-                  })
-                }
-                className="input"
-              >
-                {sizes.map((size) => (
-                  <option key={size.id} value={size.id}>
-                    {size.name}
-                  </option>
-                ))}
-              </select>
+              {/* Sizes Checkboxes */}
+              <div>
+                <p className="font-bold text-gray-700">Sizes:</p>
+                <div className="flex flex-wrap gap-3">
+                  {sizes.map((size) => (
+                    <label key={size.id} className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        value={size.id}
+                        checked={formData.sizes_id.includes(size.id)} // ← faqat backenddan kelgan id bor bo‘lsa belgilangan bo‘ladi
+                        onChange={(e) => {
+                          const { value, checked } = e.target;
+                          const id = parseInt(value); // ID raqam bo‘lsa
 
-              {/* Colors Multi Select */}
-              <select
-                multiple
-                value={formData.colors_id}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    colors_id: Array.from(
-                      e.target.selectedOptions,
-                      (opt) => opt.value
-                    ),
-                  })
-                }
-                className="input"
-              >
-                {colors.map((color) => (
-                  <option key={color.id} value={color.id}>
-                    {color.name}
-                  </option>
-                ))}
-              </select>
+                          const updated = checked
+                            ? [...formData.sizes_id, id]
+                            : formData.sizes_id.filter((item) => item !== id);
+
+                          setFormData({ ...formData, sizes_id: updated });
+                        }}
+                      />
+                      {size.size}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Colors Checkboxes */}
+              <div>
+                <p className="font-bold text-gray-700">Colors:</p>
+                <div className="flex flex-wrap gap-3">
+                  {colors.map((color) => (
+                    <label key={color.id} className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        value={color.id}
+                        checked={formData.colors_id.includes(String(color.id))}
+                        onChange={(e) => {
+                          const { value, checked } = e.target;
+                          const updated = checked
+                            ? [...formData.colors_id, value]
+                            : formData.colors_id.filter((id) => id !== value);
+                          setFormData({ ...formData, colors_id: updated });
+                        }}
+                      />
+                      {color.color_en}
+                    </label>
+                  ))}
+                </div>
+              </div>
 
               {/* Materials */}
               <input
@@ -350,7 +393,8 @@ function Products() {
         </Modal>
       )}
 
-      {/* <Modal onClose={() => setDelModal(false)}>
+      {delModal && (
+        <Modal onClose={() => setDelModal(false)}>
           <div className="p-5 bg-white rounded-2xl text-center">
             <h2 className="text-xl font-bold text-red-600">Are you sure?</h2>
             <p className="py-4">You are about to delete this category.</p>
@@ -362,20 +406,24 @@ function Products() {
                 Cancel
               </button>
               <button
-                onClick={newsDelete}
+                onClick={productsDelete}
                 className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium"
               >
                 Delete
               </button>
             </div>
           </div>
-        </Modal> */}
+        </Modal>
+      )}
 
       <div className="flex justify-between bg-white/18 px-4 py-5 rounded-xl mb-5">
         <div className="text-3xl tracking-wider font-extrabold text-white">
           Products
         </div>
-        <button onClick={addEditModal} className="px-4 py-2 cursor-pointer bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition">
+        <button
+          onClick={addEditModal}
+          className="px-4 py-2 cursor-pointer bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition"
+        >
           Add Products
         </button>
       </div>
@@ -452,7 +500,7 @@ function Products() {
                       <td className="py-1 border border-gray-600">
                         {item.images && item.images.length > 0 ? (
                           <img
-                            src={`https://back.ifly.com.uz/${item.images[0]}`}
+                            src={`https://testaoron.limsa.uz/${item.images[0]}`}
                             alt={item.title_en}
                             className="w-12 h-12 object-cover mx-auto rounded-md"
                           />
@@ -496,7 +544,7 @@ function Products() {
                         {Object.entries(item?.materials || {}).map(
                           ([key, value]) => (
                             <div key={key}>
-                              {key}: {value}%
+                              {key}: {value}
                             </div>
                           )
                         )}
@@ -509,7 +557,10 @@ function Products() {
                         >
                           Edit
                         </button>
-                        <button className="text-red-500 hover:scale-105 duration-150 hover:underline font-medium cursor-pointer">
+                        <button
+                          onClick={() => handleDelete(item.id)}
+                          className="text-red-500 hover:scale-105 duration-150 hover:underline font-medium cursor-pointer"
+                        >
                           Delete
                         </button>
                       </td>
